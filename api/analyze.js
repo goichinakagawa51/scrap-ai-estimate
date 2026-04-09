@@ -14,7 +14,9 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body;
-    console.log('Sending request, model:', body?.model);
+    if (body.model) {
+      body.model = 'claude-sonnet-4-6';
+    }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -26,13 +28,13 @@ export default async function handler(req, res) {
       body: JSON.stringify(body)
     });
 
-    const data = await response.json();
-    console.log('Response status:', response.status);
-    console.log('Response body:', JSON.stringify(data).substring(0, 500));
+    const text = await response.text();
+    console.log('Status:', response.status, 'Body:', text.substring(0, 300));
 
-    res.status(response.status).json(data);
+    res.setHeader('Content-Type', 'application/json');
+    res.status(response.status).send(text);
   } catch (error) {
-    console.error('Proxy error:', error.message);
+    console.error('Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 }
