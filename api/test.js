@@ -1,22 +1,11 @@
 export default async function handler(req, res) {
   const key = process.env.ANTHROPIC_API_KEY || 'NOT SET';
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 50,
-        messages: [{ role: 'user', content: 'hello' }]
-      })
-    });
-    const data = await response.json();
-    res.status(200).json({ status: response.status, data: data });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+  const trimmed = key.trim();
+  res.status(200).json({
+    originalLength: key.length,
+    trimmedLength: trimmed.length,
+    hasWhitespace: key !== trimmed,
+    first20: trimmed.substring(0, 20),
+    last10: trimmed.substring(trimmed.length - 10)
+  });
 }
